@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nightgram</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+}
+
+:root {
+    --bg: #090b10;
+    --panel: #11151d;
+    --panel2: #181d27;
+    --text: #ffffff;
+    --muted: #8b93a3;
+    --accent: #7c5cff;
+    --message: #202633;
+}
+
+body {
+    background: var(--bg);
+    color: var(--text);
+    height: 100vh;
+}
+
+.app {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    max-width: 600px;
+    margin: auto;
+    background: var(--bg);
+}
+
+/* Шапка */
+
+.header {
+    height: 65px;
+    background: var(--panel);
+    display: flex;
+    align-items: center;
+    padding: 0 15px;
+    gap: 15px;
+    border-bottom: 1px solid #242936;
+}
+
+.logo {
+    font-size: 24px;
+    font-weight: bold;
+    color: var(--accent);
+    flex: 1;
+}
+
+.header button {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 22px;
+    cursor: pointer;
+}
+
+/* Чаты */
+
+.chats {
+    flex: 1;
+    overflow-y: auto;
+    padding-bottom: 75px;
+}
+
+.chat {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    padding: 14px;
+    cursor: pointer;
+    border-bottom: 1px solid #171b23;
+}
+
+.chat:hover {
+    background: var(--panel2);
+}
+
+.avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.chat-info {
+    flex: 1;
+}
+
+.chat-name {
+    font-size: 17px;
+    font-weight: bold;
+}
+
+.last-message {
+    color: var(--muted);
+    margin-top: 5px;
+}
+
+/* Экран чата */
+
+.chat-screen {
+    display: none;
+    flex-direction: column;
+    height: 100vh;
+}
+
+.chat-header {
+    height: 65px;
+    background: var(--panel);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px;
+}
+
+.back {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 25px;
+}
+
+.messages {
+    flex: 1;
+    padding: 15px;
+    overflow-y: auto;
+}
+
+.message {
+    background: var(--message);
+    padding: 10px 13px;
+    border-radius: 15px;
+    margin-bottom: 10px;
+    max-width: 75%;
+    width: fit-content;
+}
+
+.message.mine {
+    margin-left: auto;
+    background: var(--accent);
+}
+
+.input-area {
+    display: flex;
+    gap: 8px;
+    padding: 10px;
+    background: var(--panel);
+}
+
+.input-area input {
+    flex: 1;
+    background: var(--panel2);
+    border: none;
+    outline: none;
+    color: white;
+    padding: 13px;
+    border-radius: 20px;
+}
+
+.input-area button {
+    border: none;
+    background: var(--accent);
+    color: white;
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    font-size: 18px;
+}
+
+/* Нижнее меню */
+
+.bottom {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 600px;
+    height: 65px;
+    background: var(--panel);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    border-top: 1px solid #242936;
+}
+
+.bottom button {
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 25px;
+}
+
+.bottom button.active {
+    color: var(--accent);
+}
+
+/* Профиль */
+
+.profile {
+    display: none;
+    padding: 25px;
+}
+
+.profile-avatar {
+    width: 100px;
+    height: 100px;
+    background: var(--accent);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+    margin: 20px auto;
+}
+
+.profile h2 {
+    text-align: center;
+}
+
+.profile p {
+    text-align: center;
+    color: var(--muted);
+    margin-top: 8px;
+}
+
+.settings {
+    margin-top: 30px;
+}
+
+.setting {
+    background: var(--panel);
+    padding: 17px;
+    border-radius: 12px;
+    margin-bottom: 10px;
+    cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- Главный экран -->
+    <div id="mainScreen">
+
+        <div class="header">
+            <div class="logo">Nightgram</div>
+            <button onclick="searchUser()">🔎</button>
+            <button onclick="openProfile()">👤</button>
+        </div>
+
+        <div class="chats" id="chatList">
+
+            <div class="chat" onclick="openChat('Алекс')">
+                <div class="avatar">А</div>
+
+                <div class="chat-info">
+                    <div class="chat-name">Алекс</div>
+                    <div class="last-message">Привет 👋</div>
+                </div>
+            </div>
+
+            <div class="chat" onclick="openChat('Nightgram Bot')">
+                <div class="avatar">N</div>
+
+                <div class="chat-info">
+                    <div class="chat-name">Nightgram Bot</div>
+                    <div class="last-message">Добро пожаловать!</div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="bottom">
+            <button class="active">💬</button>
+            <button onclick="searchUser()">🔎</button>
+            <button onclick="openProfile()">👤</button>
+        </div>
+
+    </div>
+
+
+    <!-- Экран чата -->
+
+    <div class="chat-screen" id="chatScreen">
+
+        <div class="chat-header">
+
+            <button class="back" onclick="closeChat()">←</button>
+
+            <div class="avatar" id="chatAvatar">А</div>
+
+            <div>
+                <b id="chatTitle">Алекс</b>
+                <div style="color:#8b93a3;font-size:12px;">
+                    в сети
+                </div>
+            </div>
+
+        </div>
+
+        <div class="messages" id="messages">
+
+            <div class="message">
+                Привет! Это Nightgram 👋
+            </div>
+
+        </div>
+
+        <div class="input-area">
+
+            <button onclick="sendVoice()">🎤</button>
+
+            <input
+                id="messageInput"
+                type="text"
+                placeholder="Сообщение..."
+                onkeydown="if(event.key==='Enter') sendMessage()"
+            >
+
+            <button onclick="sendMessage()">➤</button>
+
+        </div>
+
+    </div>
+
+
+    <!-- Профиль -->
+
+    <div class="profile" id="profileScreen">
+
+        <button
+            onclick="closeProfile()"
+            style="background:none;border:none;color:white;font-size:25px;"
+        >
+            ←
+        </button>
+
+        <div class="profile-avatar">
+            👤
+        </div>
+
+        <h2>Мой профиль</h2>
+
+        <p>@nightuser</p>
+
+        <p>Добро пожаловать в Nightgram!</p>
+
+        <div class="settings">
+
+            <div class="setting" onclick="changeTheme()">
+                🎨 Изменить тему
+            </div>
+
+            <div class="setting" onclick="notifications()">
+                🔔 Уведомления
+            </div>
+
+            <div class="setting" onclick="alert('Здесь позже будет настройка профиля')">
+                ✏️ Редактировать профиль
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+let currentChat = "";
+
+function openChat(name) {
+
+    currentChat = name;
+
+    document.getElementById("mainScreen").style.display = "none";
+    document.getElementById("profileScreen").style.display = "none";
+
+    document.getElementById("chatScreen").style.display = "flex";
+
+    document.getElementById("chatTitle").textContent = name;
+
+    document.getElementById("chatAvatar").textContent =
+        name.charAt(0).toUpperCase();
+}
+
+
+function closeChat() {
+
+    document.getElementById("chatScreen").style.display = "none";
+    document.getElementById("mainScreen").style.display = "block";
+
+}
+
+
+function sendMessage() {
+
+    const input = document.getElementById("messageInput");
+
+    const text = input.value.trim();
+
+    if (!text) return;
+
+    const message = document.createElement("div");
+
+    message.className = "message mine";
+
+    message.textContent = text;
+
+    document.getElementById("messages").appendChild(message);
+
+    input.value = "";
+
+    const messages = document.getElementById("messages");
+
+    messages.scrollTop = messages.scrollHeight;
+}
+
+
+function sendVoice() {
+
+    if (!navigator.mediaDevices ||
+        !navigator.mediaDevices.getUserMedia) {
+
+        alert("Браузер не поддерживает запись голоса.");
+
+        return;
+    }
+
+    navigator.mediaDevices.getUserMedia({audio:true})
+        .then(stream => {
+
+            alert("🎤 Микрофон разрешён! Запись голоса можно подключить следующим этапом.");
+
+            stream.getTracks().forEach(track => track.stop());
+
+        })
+        .catch(() => {
+
+            alert("❌ Nightgram не получил доступ к микрофону.");
+
+        });
+
+}
+
+
+function openProfile() {
+
+    document.getElementById("mainScreen").style.display = "none";
+
+    document.getElementById("chatScreen").style.display = "none";
+
+    document.getElementById("profileScreen").style.display = "block";
+
+}
+
+
+function closeProfile() {
+
+    document.getElementById("profileScreen").style.display = "none";
+
+    document.getElementById("mainScreen").style.display = "block";
+
+}
+
+
+function searchUser() {
+
+    const username = prompt("Введите username пользователя:");
+
+    if (username) {
+
+        alert("Поиск пользователя @" + username +
+              " подключим к базе данных следующим этапом.");
+
+    }
+
+}
+
+
+function notifications() {
+
+    if ("Notification" in window) {
+
+        Notification.requestPermission()
+            .then(permission => {
+
+                if (permission === "granted") {
+                    alert("🔔 Уведомления разрешены!");
+                } else {
+                    alert("Уведомления не разрешены.");
+                }
+
+            });
+
+    } else {
+
+        alert("Этот браузер не поддерживает уведомления.");
+
+    }
+
+}
+
+
+function changeTheme() {
+
+    const theme = prompt(
+        "Выбери тему:\n1 — Чёрная\n2 — Мягко-оранжевая\n3 — Салатовая\n4 — Тёмно-красная"
+    );
+
+    if (theme === "1") {
+
+        document.documentElement.style.setProperty("--accent", "#7c5cff");
+
+    }
+
+    if (theme === "2") {
+
+        document.documentElement.style.setProperty("--accent", "#ff9f5a");
+
+    }
+
+    if (theme === "3") {
+
+        document.documentElement.style.setProperty("--accent", "#8bd450");
+
+    }
+
+    if (theme === "4") {
+
+        document.documentElement.style.setProperty("--accent", "#a83232");
+
+    }
+
+}
+
+</script>
+
+</body>
+  </html>
